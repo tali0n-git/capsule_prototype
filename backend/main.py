@@ -4,6 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 
+from database import engine, Base
+from routers import auth, summary
+
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 
 # CORS configuration for allowing requests from an authorized origin
@@ -18,16 +23,8 @@ app.add_middleware(
     allow_headers=["*"],    # if want to block certain headers, specify them here
 )
 
-# memory_db = {"fruits": []}
-
-# @app.get("/fruits", response_model=Fruits)
-# def get_fruits():
-#     return Fruits(fruits=memory_db["fruits"])
-
-# @app.post("/fruits", response_model=Fruit)
-# def add_fruit(fruit: Fruit):
-#     memory_db["fruits"].append(fruit)
-#     return fruit
+app.include_router(auth.router)
+app.include_router(summary.router)
 
 
 if __name__ == "__main__":
