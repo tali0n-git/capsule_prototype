@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import List
 
 from database import engine, Base
-from routers import auth, summary
+from routers import auth, notes, summary
 
 Base.metadata.create_all(bind=engine)
 
@@ -24,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(notes.router)
 app.include_router(summary.router)
 
 
