@@ -76,7 +76,8 @@ def filter_summary(raw_summary: dict, role: str, opted_out_categories: set, prac
     Check order per field:
       1. no_record — nothing to restrict if data doesn't exist
       2. practitioner_restricted — active privacy decision by the practitioner
-      3. patient_restricted — patient consent
+      3. patient_restricted — patient consent, except for roles with FULL access
+         (e.g. PSYCHOLOGIST and GP can see mental_health even if patient opts out)
       4. role access level — HIDDEN skips silently, RESTRICTED returns reason
       5. FULL — return value
     """
@@ -101,8 +102,8 @@ def filter_summary(raw_summary: dict, role: str, opted_out_categories: set, prac
             result[category] = {"visible": False, "reason": "practitioner_restricted", "label": label}
             continue
 
-        # 3. Patient restricted
-        if category in opted_out_categories:
+        # 3. Patient restricted — FULL access roles bypass this check
+        if category in opted_out_categories and access_level != AccessLevel.FULL:
             if access_level == AccessLevel.HIDDEN:
                 continue
             result[category] = {"visible": False, "reason": "patient_restricted", "label": label}

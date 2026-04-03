@@ -132,7 +132,22 @@ def seed():
             practitioner_id=dietitian.id, consultation_id=consult_m_diet.id, allow_summary=True
         ))
 
-        # Maya's consent — opts out of mental_health sharing (no history, privacy preference)
+        # Psychologist consultation — mental health
+        consult_m_psych = Consultation(patient_id=maya.id, practitioner_id=psychologist.id, date="2026-02-10")
+        db.add(consult_m_psych)
+        db.flush()
+        db.add_all([
+            SummaryField(consultation_id=consult_m_psych.id, category="mental_health",
+                         value="Generalised anxiety disorder, mild-moderate severity. "
+                               "Commenced weekly CBT sessions. No medication at this stage. "
+                               "Sleep hygiene and behavioural activation strategies introduced."),
+        ])
+        db.add(PractitionerVisibilityControl(
+            practitioner_id=psychologist.id, consultation_id=consult_m_psych.id, allow_summary=True
+        ))
+
+        # Maya's consent — opts out of mental_health sharing with other roles,
+        # but FULL-access roles (GP, PSYCHOLOGIST) bypass this restriction
         db.add_all([
             PatientConsent(patient_id=maya.id, category="mental_health", opted_out=True),
             PatientConsent(patient_id=maya.id, category="substance_use", opted_out=False),
