@@ -2,10 +2,17 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Practitioner
+from models import Patient, Practitioner
 from permissions import ROLE_DEFAULTS
 
 router = APIRouter()
+
+
+@router.get("/patients")
+def list_patients(db: Session = Depends(get_db)):
+    """Returns all patients in the database for use in the patient switcher."""
+    patients = db.query(Patient).all()
+    return [{"id": p.id, "name": p.name} for p in patients]
 
 
 @router.get("/auth/session")
