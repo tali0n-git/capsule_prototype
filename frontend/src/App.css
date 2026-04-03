@@ -15,6 +15,29 @@ main {
   text-align: left;
 }
 
+/* Patient switcher */
+.patient-switcher {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.patient-switcher label {
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.patient-switcher select {
+  font-size: 15px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+}
+
 /* Role switcher */
 .role-switcher {
   display: flex;
