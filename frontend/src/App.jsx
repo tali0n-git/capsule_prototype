@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import './App.css';
 import api from './api.js';
 import PatientSummary from './pages/PatientSummary';
+import PatientConsentPage from './pages/PatientConsentPage';
 
 const App = () => {
   const [patients, setPatients] = useState([]);
@@ -17,28 +19,43 @@ const App = () => {
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Capsule: Patient Summary</h1>
-      </header>
-      <main>
-        {patients.length > 0 && (
-          <div className="patient-switcher">
-            <label htmlFor="patient-select">Patient:</label>
-            <select
-              id="patient-select"
-              value={patientId}
-              onChange={(e) => setPatientId(Number(e.target.value))}
-            >
-              {patients.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
-        {patientId && <PatientSummary patientId={patientId} />}
-      </main>
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <header className="App-header">
+          <h1>Capsule: Patient Summary</h1>
+          <nav className="app-nav">
+            <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
+              Summary
+            </NavLink>
+            <NavLink to="/consent" className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
+              Consent Settings
+            </NavLink>
+          </nav>
+        </header>
+        <main>
+          {patients.length > 0 && (
+            <div className="patient-switcher">
+              <label htmlFor="patient-select">Patient:</label>
+              <select
+                id="patient-select"
+                value={patientId}
+                onChange={(e) => setPatientId(Number(e.target.value))}
+              >
+                {patients.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {patientId && (
+            <Routes>
+              <Route path="/" element={<PatientSummary patientId={patientId} />} />
+              <Route path="/consent" element={<PatientConsentPage patientId={patientId} />} />
+            </Routes>
+          )}
+        </main>
+      </div>
+    </BrowserRouter>
   );
 };
 
