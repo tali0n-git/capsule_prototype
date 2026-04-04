@@ -1,6 +1,6 @@
 const REASON_LABELS = {
   no_record: 'No record',
-  role_restricted: 'Not available to your role',
+  role_restricted: 'Not available to your role — consult with patient if needed',
   patient_restricted: 'Patient has restricted access to this field',
   practitioner_restricted: 'Full practitioner notes would be shown here',
 };

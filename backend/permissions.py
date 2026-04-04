@@ -53,6 +53,16 @@ ROLE_DEFAULTS = {
 
 # Human-readable labels for each category — included in unavailable field responses
 # so SensitiveField.jsx can render the label without its own lookup table.
+CATEGORY_ORDER = [
+    "medications",
+    "allergies",
+    "sexual_health",
+    "nutrition",
+    "substance_use",
+    "mental_health",
+    "musculoskeletal",
+]
+
 CATEGORY_LABELS = {
     "medications":     "Medications",
     "allergies":       "Allergies",

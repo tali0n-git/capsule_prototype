@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models import AuditLog, Consultation, Patient, PatientConsent, PractitionerVisibilityControl, SummaryField
-from permissions import ROLE_DEFAULTS, filter_summary
+from permissions import CATEGORY_ORDER, ROLE_DEFAULTS, filter_summary
 
 router = APIRouter()
 
@@ -27,10 +27,8 @@ def build_raw_summary(patient_id: int, db: Session) -> tuple[dict, set]:
         allow_summary=False (i.e., no practitioner with allow_summary=True has contributed
         data to that category)
     """
-    # All known categories across all roles
-    all_categories = set()
-    for role_map in ROLE_DEFAULTS.values():
-        all_categories.update(role_map.keys())
+    # Use canonical category order
+    all_categories = CATEGORY_ORDER
 
     # Fetch all consultations for this patient, ordered oldest-first so later
     # entries overwrite earlier ones (most recent wins per category).
