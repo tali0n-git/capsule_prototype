@@ -19,6 +19,13 @@ def build_raw_summary(patient_id: int, db: Session) -> tuple[dict, set]:
 
     Also returns the set of categories where every contributing practitioner
     has set allow_summary=False (practitioner_restricted).
+    
+    Practitioner visibility control logic:
+      - If allow_summary=True (default): practitioner allows their notes to be summarised
+      - If allow_summary=False: practitioner restricts their notes from being summarised
+      - A category is practitioner_restricted ONLY if ALL practitioner sources have
+        allow_summary=False (i.e., no practitioner with allow_summary=True has contributed
+        data to that category)
     """
     # All known categories across all roles
     all_categories = set()
@@ -36,16 +43,19 @@ def build_raw_summary(patient_id: int, db: Session) -> tuple[dict, set]:
 
     raw: dict[str, str | None] = {cat: None for cat in all_categories}
     # Track which categories have been contributed by at least one practitioner
-    # who has allow_summary=True
+    # with allow_summary=True (practitioner permits summary inclusion)
     category_has_allowed_source: dict[str, bool] = {cat: False for cat in all_categories}
 
     for consultation in consultations:
+        # Query the practitioner's visibility control for this consultation
         visibility = (
             db.query(PractitionerVisibilityControl)
             .filter(PractitionerVisibilityControl.consultation_id == consultation.id)
             .first()
         )
-        allow = visibility.allow_summary if visibility else True
+        # allow_summary=True means this practitioner's notes can be included in summaries
+        # (default is False if no control record exists)
+        allow = visibility.allow_summary if visibility else False
 
         fields = (
             db.query(SummaryField)
@@ -54,10 +64,12 @@ def build_raw_summary(patient_id: int, db: Session) -> tuple[dict, set]:
         )
         for field in fields:
             raw[field.category] = field.value
+            # Mark this category as having at least one allowed source
             if allow:
                 category_has_allowed_source[field.category] = True
 
-    # A category is practitioner_restricted if it has data but no allowed source
+    # A category is practitioner_restricted if it has data but NO practitioner
+    # with allow_summary=True has contributed to it (all sources have restricted)
     practitioner_restricted = {
         cat for cat, value in raw.items()
         if value is not None and not category_has_allowed_source[cat]

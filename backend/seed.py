@@ -35,8 +35,9 @@ def seed():
             SummaryField(consultation_id=consult_r_gp.id, category="allergies",
                          value="Penicillin — anaphylaxis"),
         ])
+        # GP has chosen not to share their consultation notes in the shared summary (default behaviour)
         db.add(PractitionerVisibilityControl(
-            practitioner_id=gp.id, consultation_id=consult_r_gp.id, allow_summary=True
+            practitioner_id=gp.id, consultation_id=consult_r_gp.id, allow_summary=False
         ))
 
         # Psychologist consultation — mental health

@@ -71,11 +71,18 @@ def filter_summary(raw_summary: dict, role: str, opted_out_categories: set, prac
     raw_summary: dict mapping category -> value (value is None if no record exists)
     role: practitioner role string (GP, PHYSIO, DIETITIAN, PSYCHOLOGIST)
     opted_out_categories: set of categories the patient has opted out of sharing
-    practitioner_restricted_categories: set of categories where the practitioner has allow_summary=False
+    practitioner_restricted_categories: set of categories where ALL contributing practitioners
+                                        have allow_summary=False (i.e., all sources restricted)
+
+    Practitioner visibility control:
+      - allow_summary=True: practitioner allows their notes to be summarised, visible on next summary fetch
+      - allow_summary=False: practitioner restricts their notes from the summary
+      - A category is practitioner_restricted only if NO practitioner with allow_summary=True
+        has contributed data to that category
 
     Check order per field:
       1. no_record — nothing to restrict if data doesn't exist
-      2. practitioner_restricted — active privacy decision by the practitioner
+      2. practitioner_restricted — active privacy decision by the practitioner(s)
       3. patient_restricted — patient consent, except for roles with FULL access
          (e.g. PSYCHOLOGIST and GP can see mental_health even if patient opts out)
       4. role access level — HIDDEN skips silently, RESTRICTED returns reason

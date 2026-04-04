@@ -72,7 +72,7 @@ class PractitionerVisibilityControl(Base):
     id = Column(Integer, primary_key=True, index=True)
     practitioner_id = Column(Integer, ForeignKey("practitioners.id"), nullable=False)
     consultation_id = Column(Integer, ForeignKey("consultations.id"), nullable=False)
-    allow_summary = Column(Boolean, nullable=False, default=True)
+    allow_summary = Column(Boolean, nullable=False, default=False)
 
     practitioner = relationship("Practitioner", back_populates="visibility_controls")
     consultation = relationship("Consultation", back_populates="visibility_control")
