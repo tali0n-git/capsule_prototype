@@ -83,7 +83,7 @@ class AuditLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
-    practitioner_id = Column(Integer, ForeignKey("practitioners.id"), nullable=False)
+    practitioner_id = Column(Integer, ForeignKey("practitioners.id"), nullable=True)  # null for patient-initiated actions
     practitioner_role = Column(String, nullable=False)
     fields_accessed = Column(Text, nullable=False)  # JSON-encoded list of category names
     timestamp = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))

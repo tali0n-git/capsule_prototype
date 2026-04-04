@@ -72,7 +72,7 @@ def update_consent(patient_id: int, body: ConsentUpdate, db: Session = Depends(g
     action = "opted_out" if body.opted_out else "opted_in"
     db.add(AuditLog(
         patient_id=patient_id,
-        practitioner_id=0,  # 0 indicates a patient-initiated action
+        practitioner_id=None,  # null for patient-initiated actions
         practitioner_role="PATIENT",
         fields_accessed=json.dumps([body.category]),
         timestamp=datetime.now(timezone.utc),
