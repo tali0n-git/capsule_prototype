@@ -52,8 +52,8 @@ def build_raw_summary(patient_id: int, db: Session) -> tuple[dict, set]:
             .first()
         )
         # allow_summary=True means this practitioner's notes can be included in summaries
-        # (default is False if no control record exists)
-        allow = visibility.allow_summary if visibility else False
+        # (default is True if no control record exists — summarize by default)
+        allow = visibility.allow_summary if visibility else True
 
         fields = (
             db.query(SummaryField)
