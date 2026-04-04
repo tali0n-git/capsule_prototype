@@ -34,6 +34,8 @@ def seed():
                          value="Sertraline 100mg daily, Atorvastatin 20mg nightly, Metformin 500mg twice daily"),
             SummaryField(consultation_id=consult_r_gp.id, category="allergies",
                          value="Penicillin — anaphylaxis"),
+            SummaryField(consultation_id=consult_r_gp.id, category="sexual_health",
+                         value="History of STIs — last recorded episode 2022. No active infections on record."),
         ])
         # GP has chosen not to share their consultation notes in the shared summary (default behaviour)
         db.add(PractitionerVisibilityControl(
