@@ -2,7 +2,7 @@ const REASON_LABELS = {
   no_record: 'No record',
   role_restricted: 'Not available to your role',
   patient_restricted: 'Patient has restricted access to this field',
-  practitioner_restricted: 'Practitioner has chosen not to share this field',
+  practitioner_restricted: 'Full practitioner notes would be shown here',
 };
 
 const SensitiveField = ({ field }) => {
