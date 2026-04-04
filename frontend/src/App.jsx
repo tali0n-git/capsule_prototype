@@ -9,6 +9,7 @@ import PractitionerVisibilityPage from './pages/PractitionerVisibilityPage';
 const App = () => {
   const [patients, setPatients] = useState([]);
   const [patientId, setPatientId] = useState(null);
+  const [role, setRole] = useState('GP');
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -53,7 +54,7 @@ const App = () => {
           )}
           {patientId && (
             <Routes>
-              <Route path="/" element={<PatientSummary patientId={patientId} />} />
+              <Route path="/" element={<PatientSummary patientId={patientId} role={role} onRoleChange={setRole} />} />
               <Route path="/consent" element={<PatientConsentPage patientId={patientId} />} />
               <Route path="/practitioner-visibility" element={<PractitionerVisibilityPage patientId={patientId} />} />
             </Routes>

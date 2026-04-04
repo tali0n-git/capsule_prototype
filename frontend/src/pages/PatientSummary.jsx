@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; // useState used for practitionerId, patient, summary, error
 import api from '../api.js';
 import RoleSwitcher from '../components/RoleSwitcher';
 import SummaryView from '../components/SummaryView';
 
-const PatientSummary = ({ patientId }) => {
-  const [role, setRole] = useState('GP');
+const PatientSummary = ({ patientId, role, onRoleChange }) => {
   const [practitionerId, setPractitionerId] = useState(null);
   const [patient, setPatient] = useState(null);
   const [summary, setSummary] = useState(null);
@@ -43,7 +42,7 @@ const PatientSummary = ({ patientId }) => {
 
   return (
     <div className="patient-summary">
-      <RoleSwitcher currentRole={role} onRoleChange={setRole} />
+      <RoleSwitcher currentRole={role} onRoleChange={onRoleChange} />
       {error && <p className="error">{error}</p>}
       {patient && (
         <div className="patient-header">
