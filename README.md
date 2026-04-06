@@ -22,6 +22,18 @@ Capsule solves this by separating **structured summary facts** from **clinical
 notes**. Practitioners write freely in their own notes, and a separate summary layer surfaces only what is clinically relevant to
 each role — with explicit visibility controls for both patients and practitioners. A practitioner can choose to make specific consultation events fully visible by toggling the summary slider off (it is on by default).
 
+## How Capsule Approaches CYA Note Inflation
+
+Capsule does not prevent practitioners from sharing full notes — but it makes
+summarised sharing the default. The AI summary extracts clinically relevant
+facts and removes subjective language, meaning practitioners who use the default
+have no reason to write defensively.
+
+Practitioners who opt into full note sharing do so deliberately. This is a
+conscious tradeoff — full transparency between practitioners is sometimes
+clinically valuable, and Capsule doesn't prohibit it. The risk of defensive
+writing is managed through defaults, not restrictions.
+
 ### Three core requirements
 
 **1. Role-based defaults**
