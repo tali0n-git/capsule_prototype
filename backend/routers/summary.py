@@ -13,7 +13,7 @@ router = APIRouter()
 
 # Categories where practitioner visibility controls are ignored — the value is
 # always included in the summary regardless of allow_summary setting.
-ALWAYS_VISIBLE_CATEGORIES = {"medications"}
+ALWAYS_VISIBLE_CATEGORIES = {"medications", "allergies"}
 
 
 def build_raw_summary(patient_id: int, db: Session) -> dict:

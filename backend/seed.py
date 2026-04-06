@@ -53,7 +53,7 @@ def seed():
                          value="Sertraline 100mg daily, Atorvastatin 20mg nightly, Metformin 500mg twice daily, "
                                "Duloxetine 30mg daily (added by physio — reviewed and continued)."),
             SummaryField(consultation_id=consult_r_gp2.id, category="allergies",
-                         value="Sulfonamides — severe rash."),
+                         value="Sulfonamides — severe rash"),
         ])
         db.add(PractitionerVisibilityControl(
             practitioner_id=gp.id, consultation_id=consult_r_gp2.id, allow_summary=True
