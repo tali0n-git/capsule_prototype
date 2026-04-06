@@ -33,7 +33,7 @@ const App = () => {
               Patient Consent Settings
             </NavLink>
             <NavLink to="/practitioner-visibility" className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
-              Practitioner Notes
+              Practitioner Consent Settings
             </NavLink>
           </nav>
         </header>

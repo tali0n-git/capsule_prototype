@@ -49,9 +49,6 @@ def seed():
         db.add(consult_r_gp2)
         db.flush()
         db.add_all([
-            SummaryField(consultation_id=consult_r_gp2.id, category="medications",
-                         value="Sertraline 100mg daily, Atorvastatin 20mg nightly, Metformin 500mg twice daily, "
-                               "Duloxetine 30mg daily (added by physio — reviewed and continued)."),
             SummaryField(consultation_id=consult_r_gp2.id, category="allergies",
                          value="Sulfonamides — severe rash"),
         ])
@@ -67,6 +64,8 @@ def seed():
             SummaryField(consultation_id=consult_r_psych.id, category="mental_health",
                          value="Recurrent major depressive disorder, currently stable on Sertraline. "
                                "History of one inpatient episode in 2019. Engaging in fortnightly CBT."),
+            SummaryField(consultation_id=consult_r_psych.id, category="medications",
+                         value="200mg Wellbutrin XL daily"),
         ])
         db.add(PractitionerVisibilityControl(
             practitioner_id=psychologist.id, consultation_id=consult_r_psych.id, allow_summary=True
