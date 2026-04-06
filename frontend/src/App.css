@@ -134,6 +134,7 @@ main {
   line-height: 1.5;
 }
 
+
 .field--unavailable .field__reason {
   padding: 14px 16px;
   color: var(--text);

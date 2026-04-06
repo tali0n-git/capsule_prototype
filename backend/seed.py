@@ -44,6 +44,21 @@ def seed():
             practitioner_id=gp.id, consultation_id=consult_r_gp.id, allow_summary=False
         ))
 
+        # Second GP consultation — follow-up, shared with other practitioners
+        consult_r_gp2 = Consultation(patient_id=robert.id, practitioner_id=gp.id, date="2026-02-18")
+        db.add(consult_r_gp2)
+        db.flush()
+        db.add_all([
+            SummaryField(consultation_id=consult_r_gp2.id, category="medications",
+                         value="Sertraline 100mg daily, Atorvastatin 20mg nightly, Metformin 500mg twice daily, "
+                               "Duloxetine 30mg daily (added by physio — reviewed and continued)."),
+            SummaryField(consultation_id=consult_r_gp2.id, category="allergies",
+                         value="Penicillin — anaphylaxis. Confirmed at this visit."),
+        ])
+        db.add(PractitionerVisibilityControl(
+            practitioner_id=gp.id, consultation_id=consult_r_gp2.id, allow_summary=True
+        ))
+
         # Psychologist consultation — mental health
         consult_r_psych = Consultation(patient_id=robert.id, practitioner_id=psychologist.id, date="2025-10-22")
         db.add(consult_r_psych)
@@ -82,6 +97,23 @@ def seed():
         db.add(PractitionerVisibilityControl(
             practitioner_id=dietitian.id, consultation_id=consult_r_diet.id, allow_summary=True
         ))
+
+        # Additional consultations to test practitioners' ability to summarize/not summarize specific sessions
+        # Add Physio consultation — musculoskeletal and medication
+        consult_r_physio = Consultation(patient_id=robert.id, practitioner_id=physio.id, date="2026-01-03")
+        db.add(consult_r_physio)
+        db.flush()
+        db.add_all([
+            SummaryField(consultation_id=consult_r_physio.id, category="musculoskeletal",
+                         value="Chronic lower back pain worsening. Pain is currently interfering with sleep and daily functions."
+                               "Prescribed duloxetine (Cymbalta) 30mg PO daily; follow-up in 4 weeks."),
+            SummaryField(consultation_id=consult_r_physio.id, category="medications",
+                         value="Duloxetine 30mg daily"),
+        ])
+        db.add(PractitionerVisibilityControl(
+            practitioner_id=physio.id, consultation_id=consult_r_physio.id, allow_summary=True
+        ))
+
 
         # Robert's consent — no opt-outs
         db.add_all([

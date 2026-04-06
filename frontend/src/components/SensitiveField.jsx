@@ -7,10 +7,37 @@ const REASON_LABELS = {
 
 const SensitiveField = ({ field }) => {
   if (field.visible) {
+    const entries = Array.isArray(field.value) ? field.value : null;
+
+    const renderEntry = (entry, i) => {
+      if (entry.restricted) {
+        return (
+          <li key={i} className="field__note field__note--restricted">
+            <span className="field__note-date">{entry.date}</span>
+            {" — "}
+            <span className="field__reason">Full practitioner notes would be shown here</span>
+          </li>
+        );
+      }
+      return (
+        <li key={i} className="field__note">
+          <span className="field__note-date">{entry.date}</span>
+          {" — "}
+          <span>{entry.value}</span>
+        </li>
+      );
+    };
+
     return (
       <div className="field field--visible">
         <span className="field__label">{field.label}</span>
-        <span className="field__value">{field.value}</span>
+        {entries ? (
+          <ul className="field__notes-list">
+            {entries.map(renderEntry)}
+          </ul>
+        ) : (
+          <span className="field__value">{field.value}</span>
+        )}
       </div>
     );
   }

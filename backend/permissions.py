@@ -74,29 +74,21 @@ CATEGORY_LABELS = {
 }
 
 
-def filter_summary(raw_summary: dict, role: str, opted_out_categories: set, practitioner_restricted_categories: set) -> dict:
+def filter_summary(raw_summary: dict, role: str, opted_out_categories: set) -> dict:
     """
     Apply permission logic to a raw summary and return only what this role is allowed to see.
 
-    raw_summary: dict mapping category -> value (value is None if no record exists)
-    role: practitioner role string (GP, PHYSIO, DIETITIAN, PSYCHOLOGIST)
-    opted_out_categories: set of categories the patient has opted out of sharing
-    practitioner_restricted_categories: set of categories where ALL contributing practitioners
-                                        have allow_summary=False (i.e., all sources restricted)
-
-    Practitioner visibility control:
-      - allow_summary=True: practitioner allows their notes to be summarised, visible on next summary fetch
-      - allow_summary=False: practitioner restricts their notes from the summary
-      - A category is practitioner_restricted only if NO practitioner with allow_summary=True
-        has contributed data to that category
+    raw_summary: dict mapping category -> list of entries, or None if no record exists.
+    Each entry is either a visible entry {value, date, ...} or a placeholder
+    {restricted: True, date, ...} for practitioner-restricted consultations.
+    Practitioner restriction is now handled per-entry in build_raw_summary, so
+    filter_summary only applies role-level and patient-consent checks.
 
     Check order per field:
-      1. no_record — nothing to restrict if data doesn't exist
-      2. practitioner_restricted — active privacy decision by the practitioner(s)
-      3. patient_restricted — patient consent, except for roles with FULL access
-         (e.g. PSYCHOLOGIST and GP can see mental_health even if patient opts out)
-      4. role access level — HIDDEN skips silently, RESTRICTED returns reason
-      5. FULL — return value
+      1. no_record — value is None
+      2. patient_restricted — patient consent, except for roles with FULL access
+      3. role access level — HIDDEN skips silently, RESTRICTED returns reason
+      4. FULL — return the entry list as-is (may include placeholder entries)
     """
     role_defaults = ROLE_DEFAULTS.get(role, {})
     result = {}
@@ -112,28 +104,21 @@ def filter_summary(raw_summary: dict, role: str, opted_out_categories: set, prac
             result[category] = {"visible": False, "reason": "no_record", "label": label}
             continue
 
-        # 2. Practitioner restricted
-        if category in practitioner_restricted_categories:
-            if access_level == AccessLevel.HIDDEN:
-                continue
-            result[category] = {"visible": False, "reason": "practitioner_restricted", "label": label}
-            continue
-
-        # 3. Patient restricted — FULL access roles bypass this check
+        # 2. Patient restricted — FULL access roles bypass this check
         if category in opted_out_categories and access_level != AccessLevel.FULL:
             if access_level == AccessLevel.HIDDEN:
                 continue
             result[category] = {"visible": False, "reason": "patient_restricted", "label": label}
             continue
 
-        # 4. Role access level
+        # 3. Role access level
         if access_level == AccessLevel.HIDDEN:
             continue
         if access_level == AccessLevel.RESTRICTED:
             result[category] = {"visible": False, "reason": "role_restricted", "label": label}
             continue
 
-        # 5. FULL
+        # 4. FULL — pass entries through; placeholders are rendered by the frontend
         result[category] = {"visible": True, "value": value, "label": label}
 
     return result

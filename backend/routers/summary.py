@@ -11,27 +11,26 @@ from permissions import CATEGORY_ORDER, ROLE_DEFAULTS, filter_summary
 router = APIRouter()
 
 
-def build_raw_summary(patient_id: int, db: Session) -> tuple[dict, set]:
-    """
-    Collect all SummaryFields for a patient into a flat dict keyed by category.
-    Where multiple consultations have contributed to the same category, the most
-    recent value is used.
+# Categories where practitioner visibility controls are ignored — the value is
+# always included in the summary regardless of allow_summary setting.
+ALWAYS_VISIBLE_CATEGORIES = {"medications"}
 
-    Also returns the set of categories where every contributing practitioner
-    has set allow_summary=False (practitioner_restricted).
-    
-    Practitioner visibility control logic:
-      - If allow_summary=True (default): practitioner allows their notes to be summarised
-      - If allow_summary=False: practitioner restricts their notes from being summarised
-      - A category is practitioner_restricted ONLY if ALL practitioner sources have
-        allow_summary=False (i.e., no practitioner with allow_summary=True has contributed
-        data to that category)
+
+def build_raw_summary(patient_id: int, db: Session) -> dict:
     """
-    # Use canonical category order
+    Collect all SummaryFields for a patient into a dict keyed by category.
+    Each category maps to a list of entries ordered oldest-first, or None if
+    no data exists at all (no_record).
+
+    Each entry is one of:
+      {value, date, practitioner_name, practitioner_role}  — visible entry
+      {restricted: True, date, practitioner_name, practitioner_role}  — placeholder
+        shown when the practitioner has set allow_summary=False
+
+    Medications bypass practitioner restriction and always show the full value.
+    """
     all_categories = CATEGORY_ORDER
 
-    # Fetch all consultations for this patient, ordered oldest-first so later
-    # entries overwrite earlier ones (most recent wins per category).
     consultations = (
         db.query(Consultation)
         .filter(Consultation.patient_id == patient_id)
@@ -39,20 +38,14 @@ def build_raw_summary(patient_id: int, db: Session) -> tuple[dict, set]:
         .all()
     )
 
-    raw: dict[str, str | None] = {cat: None for cat in all_categories}
-    # Track which categories have been contributed by at least one practitioner
-    # with allow_summary=True (practitioner permits summary inclusion)
-    category_has_allowed_source: dict[str, bool] = {cat: False for cat in all_categories}
+    raw: dict[str, list | None] = {cat: None for cat in all_categories}
 
     for consultation in consultations:
-        # Query the practitioner's visibility control for this consultation
         visibility = (
             db.query(PractitionerVisibilityControl)
             .filter(PractitionerVisibilityControl.consultation_id == consultation.id)
             .first()
         )
-        # allow_summary=True means this practitioner's notes can be included in summaries
-        # (default is True if no control record exists — summarize by default)
         allow = visibility.allow_summary if visibility else True
 
         fields = (
@@ -61,19 +54,28 @@ def build_raw_summary(patient_id: int, db: Session) -> tuple[dict, set]:
             .all()
         )
         for field in fields:
-            raw[field.category] = field.value
-            # Mark this category as having at least one allowed source
-            if allow:
-                category_has_allowed_source[field.category] = True
+            if raw[field.category] is None:
+                raw[field.category] = []
 
-    # A category is practitioner_restricted if it has data but NO practitioner
-    # with allow_summary=True has contributed to it (all sources have restricted)
-    practitioner_restricted = {
-        cat for cat, value in raw.items()
-        if value is not None and not category_has_allowed_source[cat]
-    }
+            always_visible = field.category in ALWAYS_VISIBLE_CATEGORIES
+            if allow or always_visible:
+                raw[field.category].append({
+                    "value": field.value,
+                    "date": consultation.date,
+                    "practitioner_name": consultation.practitioner.name,
+                    "practitioner_role": consultation.practitioner.role,
+                })
+            else:
+                # Practitioner has restricted this consultation — include a
+                # placeholder so the viewer knows a note exists but is withheld.
+                raw[field.category].append({
+                    "restricted": True,
+                    "date": consultation.date,
+                    "practitioner_name": consultation.practitioner.name,
+                    "practitioner_role": consultation.practitioner.role,
+                })
 
-    return raw, practitioner_restricted
+    return raw
 
 
 @router.get("/summary/{patient_id}")
@@ -97,15 +99,14 @@ def get_summary(patient_id: int, role: str, practitioner_id: int, db: Session = 
     consents = db.query(PatientConsent).filter(PatientConsent.patient_id == patient_id).all()
     opted_out = {c.category for c in consents if c.opted_out}
 
-    # Build raw summary and determine practitioner-restricted categories
-    raw_summary, practitioner_restricted = build_raw_summary(patient_id, db)
+    # Build raw summary
+    raw_summary = build_raw_summary(patient_id, db)
 
     # Apply permission logic
     filtered = filter_summary(
         raw_summary=raw_summary,
         role=role,
         opted_out_categories=opted_out,
-        practitioner_restricted_categories=practitioner_restricted,
     )
 
     # Write audit log — log what was actually returned
