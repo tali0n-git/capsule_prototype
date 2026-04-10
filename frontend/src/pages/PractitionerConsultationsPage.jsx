@@ -20,36 +20,17 @@ const CATEGORY_LABELS = {
   sexual_health:   'Sexual Health',
 };
 
-const PractitionerConsultationsPage = ({ patientId, role, onRoleChange }) => {
-  const [practitionerId, setPractitionerId] = useState(null);
-  const [practitionerName, setPractitionerName] = useState('');
+const PractitionerConsultationsPage = ({ patientId, practitioner, practitioners, onPractitionerChange }) => {
   const [notes, setNotes] = useState({});
   const [status, setStatus] = useState(null);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        setError(null);
-        const response = await api.get('/auth/session', { params: { role } });
-        setPractitionerId(response.data.practitioner_id);
-        setPractitionerName(response.data.name);
-        setNotes({});
-        setStatus(null);
-      } catch (err) {
-        setError(`Could not load session for role: ${role}`);
-      }
-    };
-    fetchSession();
-  }, [role]);
-
-  // Clear notes when the patient changes
+  // Clear notes when practitioner or patient changes
   useEffect(() => {
     setNotes({});
     setStatus(null);
-  }, [patientId]);
+  }, [practitioner?.id, patientId]);
 
-  const writableCategories = ROLE_WRITABLE_CATEGORIES[role] || [];
+  const writableCategories = ROLE_WRITABLE_CATEGORIES[practitioner?.role] || [];
 
   const handleChange = (category, value) => {
     setNotes(prev => ({ ...prev, [category]: value }));
@@ -68,7 +49,7 @@ const PractitionerConsultationsPage = ({ patientId, role, onRoleChange }) => {
     try {
       await api.post('/notes', {
         patient_id: patientId,
-        practitioner_id: practitionerId,
+        practitioner_id: practitioner.id,
         notes: noteEntries,
       });
       setNotes({});
@@ -80,11 +61,14 @@ const PractitionerConsultationsPage = ({ patientId, role, onRoleChange }) => {
 
   return (
     <div className="consent-page">
-      <RoleSwitcher currentRole={role} onRoleChange={onRoleChange} />
-      {error && <p className="error">{error}</p>}
-      {practitionerName && (
+      <RoleSwitcher
+        practitioners={practitioners}
+        currentPractitioner={practitioner}
+        onPractitionerChange={onPractitionerChange}
+      />
+      {practitioner && (
         <div className="patient-header">
-          <h2>{practitionerName}</h2>
+          <h2>{practitioner.name}</h2>
           <p>Enter consultation notes below. Only filled fields will be saved. Notes appear in the patient summary immediately.</p>
         </div>
       )}

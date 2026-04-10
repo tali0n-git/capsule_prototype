@@ -3,43 +3,40 @@ import api from '../api.js';
 import RoleSwitcher from '../components/RoleSwitcher';
 import SummaryView from '../components/SummaryView';
 
-const PatientSummary = ({ patientId, role, onRoleChange }) => {
+const PatientSummary = ({ patientId, practitioner, practitioners, onPractitionerChange }) => {
   const [patient, setPatient] = useState(null);
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!practitioner) return;
     let cancelled = false;
 
-    const fetchAll = async () => {
+    const fetchSummary = async () => {
       try {
         setError(null);
-
-        // Step 1: resolve the practitioner ID for the current role
-        const sessionRes = await api.get('/auth/session', { params: { role } });
-        if (cancelled) return;
-        const practitionerId = sessionRes.data.practitioner_id;
-
-        // Step 2: fetch the filtered summary
-        const summaryRes = await api.get(`/summary/${patientId}`, {
-          params: { role, practitioner_id: practitionerId },
+        const response = await api.get(`/summary/${patientId}`, {
+          params: { role: practitioner.role, practitioner_id: practitioner.id },
         });
         if (cancelled) return;
-
-        setPatient(summaryRes.data.patient);
-        setSummary(summaryRes.data.summary);
+        setPatient(response.data.patient);
+        setSummary(response.data.summary);
       } catch (err) {
         if (!cancelled) setError('Could not load patient summary.');
       }
     };
 
-    fetchAll();
+    fetchSummary();
     return () => { cancelled = true; };
-  }, [role, patientId]);
+  }, [practitioner, patientId]);
 
   return (
     <div className="patient-summary">
-      <RoleSwitcher currentRole={role} onRoleChange={onRoleChange} />
+      <RoleSwitcher
+        practitioners={practitioners}
+        currentPractitioner={practitioner}
+        onPractitionerChange={onPractitionerChange}
+      />
       {error && <p className="error">{error}</p>}
       {patient && (
         <div className="patient-header">

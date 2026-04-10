@@ -1,9 +1,10 @@
 from database import engine, SessionLocal, Base
 from models import (
     Patient, Practitioner, Consultation, SummaryField,
-    PatientConsent, PractitionerVisibilityControl
+    PatientConsent, PractitionerVisibilityControl, AuditLog
 )
 
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 
@@ -11,11 +12,23 @@ def seed():
     db = SessionLocal()
 
     try:
+        # Clear existing data in dependency order (children before parents)
+        db.query(AuditLog).delete()
+        db.query(PractitionerVisibilityControl).delete()
+        db.query(SummaryField).delete()
+        db.query(Consultation).delete()
+        db.query(PatientConsent).delete()
+        db.query(Patient).delete()
+        db.query(Practitioner).delete()
+        db.commit()
+
         # --- Practitioners ---
         gp = Practitioner(name="Dr. Sarah Nguyen", role="GP")
         physio = Practitioner(name="James Okafor", role="PHYSIO")
         dietitian = Practitioner(name="Rachel Kim", role="DIETITIAN")
         psychologist = Practitioner(name="Dr. Tom Ellis", role="PSYCHOLOGIST")
+        
+
         db.add_all([gp, physio, dietitian, psychologist])
         db.flush()
 

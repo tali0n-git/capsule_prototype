@@ -1,16 +1,19 @@
-const ROLES = ['GP', 'PHYSIO', 'DIETITIAN', 'PSYCHOLOGIST'];
+const RoleSwitcher = ({ practitioners, currentPractitioner, onPractitionerChange }) => {
+  const handleChange = (e) => {
+    const selected = practitioners.find((p) => p.id === Number(e.target.value));
+    if (selected) onPractitionerChange(selected);
+  };
 
-const RoleSwitcher = ({ currentRole, onRoleChange }) => {
   return (
-    <div className="role-switcher">
-      <label htmlFor="role-select">Viewing as:</label>
+    <div className="patient-switcher">
+      <label htmlFor="role-select">Practitioner:</label>
       <select
         id="role-select"
-        value={currentRole}
-        onChange={(e) => onRoleChange(e.target.value)}
+        value={currentPractitioner?.id ?? ''}
+        onChange={handleChange}
       >
-        {ROLES.map((role) => (
-          <option key={role} value={role}>{role}</option>
+        {practitioners.map((p) => (
+          <option key={p.id} value={p.id}>{p.name} — {p.role}</option>
         ))}
       </select>
     </div>

@@ -10,8 +10,9 @@ import PractitionerConsultationsPage from './pages/PractitionerConsultationsPage
 const App = () => {
   const [patients, setPatients] = useState([]);
   const [patientId, setPatientId] = useState(null);
-  const [role, setRole] = useState('GP');
-  const [practitionerId, setPractitionerId] = useState(null);
+  const [practitioners, setPractitioners] = useState([]);
+  const [viewingPractitioner, setViewingPractitioner] = useState(null); // {id, name, role}
+  const [consentPractitionerId, setConsentPractitionerId] = useState(null);
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -22,6 +23,20 @@ const App = () => {
     fetchPatients();
   }, []);
 
+  // Fetch practitioners whenever the selected patient changes
+  useEffect(() => {
+    if (!patientId) return;
+    const fetchPractitioners = async () => {
+      const response = await api.get('/practitioners', { params: { patient_id: patientId } });
+      setPractitioners(response.data);
+      if (response.data.length > 0) {
+        setViewingPractitioner(p => p ?? response.data[0]);
+        setConsentPractitionerId(id => id ?? response.data[0].id);
+      }
+    };
+    fetchPractitioners();
+  }, [patientId]);
+
   return (
     <BrowserRouter>
       <div className="App">
@@ -31,14 +46,14 @@ const App = () => {
             <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
               Summary
             </NavLink>
-            <NavLink to="/consent" className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
-              Patient Consent Settings
+            <NavLink to="/consultations" className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
+              Add Practitioners' Notes
             </NavLink>
             <NavLink to="/practitioner-visibility" className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
               Practitioner Consent Settings
             </NavLink>
-            <NavLink to="/consultations" className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
-              Add Practitioners' Notes
+            <NavLink to="/consent" className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
+              Patient Consent Settings
             </NavLink>
           </nav>
         </header>
@@ -59,10 +74,30 @@ const App = () => {
           )}
           {patientId && (
             <Routes>
-              <Route path="/" element={<PatientSummary patientId={patientId} role={role} onRoleChange={setRole} />} />
+              <Route path="/" element={
+                <PatientSummary
+                  patientId={patientId}
+                  practitioner={viewingPractitioner}
+                  practitioners={practitioners}
+                  onPractitionerChange={setViewingPractitioner}
+                />}
+              />
               <Route path="/consent" element={<PatientConsentPage patientId={patientId} />} />
-              <Route path="/practitioner-visibility" element={<PractitionerVisibilityPage patientId={patientId} selectedId={practitionerId} onPractitionerChange={setPractitionerId} />} />
-              <Route path="/consultations" element={<PractitionerConsultationsPage patientId={patientId} role={role} onRoleChange={setRole} />} />
+              <Route path="/practitioner-visibility" element={
+                <PractitionerVisibilityPage
+                  patientId={patientId}
+                  selectedId={consentPractitionerId}
+                  onPractitionerChange={setConsentPractitionerId}
+                />}
+              />
+              <Route path="/consultations" element={
+                <PractitionerConsultationsPage
+                  patientId={patientId}
+                  practitioner={viewingPractitioner}
+                  practitioners={practitioners}
+                  onPractitionerChange={setViewingPractitioner}
+                />}
+              />
             </Routes>
           )}
         </main>
