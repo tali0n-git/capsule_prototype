@@ -74,7 +74,7 @@ def update_consent(patient_id: int, body: ConsentUpdate, db: Session = Depends(g
         patient_id=patient_id,
         practitioner_id=None,  # null for patient-initiated actions
         practitioner_role="PATIENT",
-        fields_accessed=json.dumps([body.category]),
+        fields_accessed=json.dumps(["Patient Consent Settings", action]),
         timestamp=datetime.now(timezone.utc),
     ))
 

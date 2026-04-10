@@ -132,6 +132,19 @@ Each row contains: `patient_id`, `practitioner_id`, `practitioner_role`,
 
 ---
 
+## Interpreting Audit Log
+
+
+| Action | Value |
+|---|---|
+| `Viewing Summary tab` | ["Summary", "viewed"] |
+| `Submitting notes	` | ["Add Practitioners' Notes", "submitted"] |
+| `Patient toggling consent on` | ["Patient Consent Settings", "opted_in"] |
+| `Patient toggling consent off` | ["Patient Consent Settings", "opted_out"] |
+
+
+---
+
 ## Project Structure
 ```
 capsule/

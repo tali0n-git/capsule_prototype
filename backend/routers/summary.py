@@ -109,13 +109,12 @@ def get_summary(patient_id: int, role: str, practitioner_id: int, db: Session = 
         opted_out_categories=opted_out,
     )
 
-    # Write audit log — log what was actually returned
-    fields_accessed = [cat for cat, field in filtered.items() if field.get("visible")]
+    # Write audit log
     db.add(AuditLog(
         patient_id=patient_id,
         practitioner_id=practitioner_id,
         practitioner_role=role,
-        fields_accessed=json.dumps(fields_accessed),
+        fields_accessed=json.dumps(["Summary", "viewed"]),
         timestamp=datetime.now(timezone.utc),
     ))
     db.commit()

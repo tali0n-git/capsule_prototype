@@ -76,12 +76,11 @@ def submit_notes(body: NoteSubmission, db: Session = Depends(get_db)):
         allow_summary=True,
     ))
 
-    categories_written = [entry.category for entry in body.notes]
     db.add(AuditLog(
         patient_id=body.patient_id,
         practitioner_id=body.practitioner_id,
         practitioner_role=practitioner.role,
-        fields_accessed=json.dumps(categories_written),
+        fields_accessed=json.dumps(["Add Practitioners' Notes", "submitted"]),
         timestamp=datetime.now(timezone.utc),
     ))
 
