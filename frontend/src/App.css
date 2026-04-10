@@ -155,6 +155,55 @@ main {
   font-style: italic;
 }
 
+/* Note input */
+.note-field {
+  padding: 10px 16px;
+}
+
+.note-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.note-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Submit button */
+.submit-btn {
+  margin-top: 20px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  opacity: 0.88;
+}
+
+/* Success message */
+.success-message {
+  margin-top: 16px;
+  color: #16a34a;
+  font-size: 14px;
+}
+
 /* Consent toggle */
 .consent-toggle {
   display: flex;

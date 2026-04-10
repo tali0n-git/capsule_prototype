@@ -5,6 +5,7 @@ import api from './api.js';
 import PatientSummary from './pages/PatientSummary';
 import PatientConsentPage from './pages/PatientConsentPage';
 import PractitionerVisibilityPage from './pages/PractitionerVisibilityPage';
+import PractitionerConsultationsPage from './pages/PractitionerConsultationsPage';
 
 const App = () => {
   const [patients, setPatients] = useState([]);
@@ -36,6 +37,9 @@ const App = () => {
             <NavLink to="/practitioner-visibility" className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
               Practitioner Consent Settings
             </NavLink>
+            <NavLink to="/consultations" className={({ isActive }) => isActive ? 'nav-link nav-link--active' : 'nav-link'}>
+              Add Practitioners' Notes
+            </NavLink>
           </nav>
         </header>
         <main>
@@ -58,6 +62,7 @@ const App = () => {
               <Route path="/" element={<PatientSummary patientId={patientId} role={role} onRoleChange={setRole} />} />
               <Route path="/consent" element={<PatientConsentPage patientId={patientId} />} />
               <Route path="/practitioner-visibility" element={<PractitionerVisibilityPage patientId={patientId} selectedId={practitionerId} onPractitionerChange={setPractitionerId} />} />
+              <Route path="/consultations" element={<PractitionerConsultationsPage patientId={patientId} role={role} onRoleChange={setRole} />} />
             </Routes>
           )}
         </main>
