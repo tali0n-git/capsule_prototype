@@ -1,44 +1,41 @@
-import { useState, useEffect } from 'react'; // useState used for practitionerId, patient, summary, error
+import { useState, useEffect } from 'react';
 import api from '../api.js';
 import RoleSwitcher from '../components/RoleSwitcher';
 import SummaryView from '../components/SummaryView';
 
 const PatientSummary = ({ patientId, role, onRoleChange }) => {
-  const [practitionerId, setPractitionerId] = useState(null);
   const [patient, setPatient] = useState(null);
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState(null);
 
-  // Fetch session (practitioner_id) whenever role changes
   useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const response = await api.get('/auth/session', { params: { role } });
-        setPractitionerId(response.data.practitioner_id);
-      } catch (err) {
-        setError(`Could not load session for role: ${role}`);
-      }
-    };
-    fetchSession();
-  }, [role]);
+    let cancelled = false;
 
-  // Fetch summary whenever practitioner_id is resolved or patient changes
-  useEffect(() => {
-    if (!practitionerId) return;
-    const fetchSummary = async () => {
+    const fetchAll = async () => {
       try {
         setError(null);
-        const response = await api.get(`/summary/${patientId}`, {
+
+        // Step 1: resolve the practitioner ID for the current role
+        const sessionRes = await api.get('/auth/session', { params: { role } });
+        if (cancelled) return;
+        const practitionerId = sessionRes.data.practitioner_id;
+
+        // Step 2: fetch the filtered summary
+        const summaryRes = await api.get(`/summary/${patientId}`, {
           params: { role, practitioner_id: practitionerId },
         });
-        setPatient(response.data.patient);
-        setSummary(response.data.summary);
+        if (cancelled) return;
+
+        setPatient(summaryRes.data.patient);
+        setSummary(summaryRes.data.summary);
       } catch (err) {
-        setError('Could not load patient summary.');
+        if (!cancelled) setError('Could not load patient summary.');
       }
     };
-    fetchSummary();
-  }, [practitionerId, patientId]);
+
+    fetchAll();
+    return () => { cancelled = true; };
+  }, [role, patientId]);
 
   return (
     <div className="patient-summary">
