@@ -13,7 +13,7 @@ const RoleSwitcher = ({ practitioners, currentPractitioner, onPractitionerChange
         onChange={handleChange}
       >
         {practitioners.map((p) => (
-          <option key={p.id} value={p.id}>{p.name} — {p.role}</option>
+          <option key={p.id} value={p.id}>{p.name} — {p.role} (ID: {p.id})</option>
         ))}
       </select>
     </div>

@@ -67,7 +67,7 @@ const PractitionerVisibilityPage = ({ patientId, selectedId, onPractitionerChang
           {selected && (
             <>
               <div className="patient-header">
-                <h2>{selected.name}</h2>
+                <h2>{selected.name} (ID: {selected.id})</h2>
                 <p>{selected.role} — Toggle whether each consultation's notes are included in the shared patient summary.</p>
               </div>
               <div className="summary-view">

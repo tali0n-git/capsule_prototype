@@ -55,7 +55,8 @@ const PractitionerConsultationsPage = ({ patientId, practitioner, practitioners,
       setNotes({});
       setStatus({ type: 'success', message: `${noteEntries.length} note(s) saved and will appear in the patient summary.` });
     } catch (err) {
-      setStatus({ type: 'error', message: 'Could not save notes. Please try again.' });
+      const detail = err.response?.data?.detail
+      setStatus({ type: 'error', message: detail ? `Error: ${detail}` : 'Could not save notes. Please try again.' });
     }
   };
 
@@ -68,7 +69,7 @@ const PractitionerConsultationsPage = ({ patientId, practitioner, practitioners,
       />
       {practitioner && (
         <div className="patient-header">
-          <h2>{practitioner.name}</h2>
+          <h2>{practitioner.name} (ID: {practitioner.id})</h2>
           <p>Enter consultation notes below. Only filled fields will be saved. Notes appear in the patient summary immediately.</p>
         </div>
       )}

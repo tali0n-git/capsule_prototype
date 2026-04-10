@@ -27,9 +27,12 @@ def seed():
         physio = Practitioner(name="James Okafor", role="PHYSIO")
         dietitian = Practitioner(name="Rachel Kim", role="DIETITIAN")
         psychologist = Practitioner(name="Dr. Tom Ellis", role="PSYCHOLOGIST")
-        
 
-        db.add_all([gp, physio, dietitian, psychologist])
+        # Additional practitioners to test role-based access controls
+        physio2 = Practitioner(name="Emily Chen", role="PHYSIO")
+        dietitian2 = Practitioner(name="Liam Smith", role="DIETITIAN")
+
+        db.add_all([gp, physio, dietitian, psychologist, physio2, dietitian2])
         db.flush()
 
         # --- Patient 1: Robert Marsh, 65-yr old male ---
@@ -125,6 +128,35 @@ def seed():
         db.add(PractitionerVisibilityControl(
             practitioner_id=physio.id, consultation_id=consult_r_physio.id, allow_summary=True
         ))
+
+
+        # Add Physio consultation — 2nd opinion
+        consult_r_physio2 = Consultation(patient_id=robert.id, practitioner_id=physio2.id, date="2026-01-15")
+        db.add(consult_r_physio2)
+        db.flush()
+        db.add_all([
+            SummaryField(consultation_id=consult_r_physio2.id, category="musculoskeletal",
+                         value="Second opinion consultation. Agreed with diagnosis of chronic lower back pain. "
+                               "Provided additional education on pain neuroscience and reassurance regarding prognosis. "
+                               "Recommended continuation of current loading program and activity levels."),
+        ])
+        db.add(PractitionerVisibilityControl(
+            practitioner_id=physio2.id, consultation_id=consult_r_physio2.id, allow_summary=True
+        ))
+
+        # Additional Dietitian consultation — 2nd opinion
+        consult_r_diet2 = Consultation(patient_id=robert.id, practitioner_id=dietitian2.id, date="2025-12-10")
+        db.add(consult_r_diet2)
+        db.flush()
+        db.add_all([
+            SummaryField(consultation_id=consult_r_diet2.id, category="nutrition",
+                         value="Second opinion consultation. Reinforced low-GI diet advice. "
+                               "Discussed intermittent fasting as a potential future strategy; patient interested but not ready to trial at this stage."),
+        ])
+        db.add(PractitionerVisibilityControl(
+            practitioner_id=dietitian2.id, consultation_id=consult_r_diet2.id, allow_summary=True
+        ))
+
 
 
         # Robert's consent — no opt-outs
