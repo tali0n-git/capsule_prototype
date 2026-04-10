@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api.js';
 
-const PractitionerVisibilityPage = ({ patientId }) => {
+const PractitionerVisibilityPage = ({ patientId, selectedId, onPractitionerChange }) => {
   const [practitioners, setPractitioners] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -11,7 +10,7 @@ const PractitionerVisibilityPage = ({ patientId }) => {
       try {
         const response = await api.get('/practitioners', { params: { patient_id: patientId } });
         setPractitioners(response.data);
-        if (response.data.length > 0) setSelectedId(response.data[0].id);
+        if (response.data.length > 0 && !selectedId) onPractitionerChange(response.data[0].id);
       } catch (err) {
         setError('Could not load practitioners.');
       }
@@ -56,7 +55,7 @@ const PractitionerVisibilityPage = ({ patientId }) => {
             <select
               id="practitioner-select"
               value={selectedId}
-              onChange={(e) => setSelectedId(Number(e.target.value))}
+              onChange={(e) => onPractitionerChange(Number(e.target.value))}
             >
               {practitioners.map((p) => (
                 <option key={p.id} value={p.id}>
