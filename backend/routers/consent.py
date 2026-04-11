@@ -11,7 +11,7 @@ from permissions import CATEGORY_LABELS
 
 router = APIRouter()
 
-SENSITIVE_CATEGORIES = ["mental_health", "substance_use", "sexual_health"]
+SENSITIVE_CATEGORIES = ["substance_use", "mental_health", "sexual_health"]
 
 
 @router.get("/patients/{patient_id}/consent")

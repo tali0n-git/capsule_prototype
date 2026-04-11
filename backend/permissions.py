@@ -56,11 +56,11 @@ ROLE_DEFAULTS = {
 CATEGORY_ORDER = [
     "medications",
     "allergies",
-    "sexual_health",
     "nutrition",
+    "musculoskeletal",
     "substance_use",
     "mental_health",
-    "musculoskeletal",
+    "sexual_health",
 ]
 
 CATEGORY_LABELS = {

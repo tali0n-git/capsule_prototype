@@ -1,9 +1,12 @@
+import json
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Consultation, Patient, Practitioner, PractitionerVisibilityControl
+from models import AuditLog, Consultation, Patient, Practitioner, PractitionerVisibilityControl
 from permissions import ROLE_DEFAULTS
 
 router = APIRouter()
@@ -92,6 +95,16 @@ def update_visibility(practitioner_id: int, body: VisibilityUpdate, db: Session 
         raise HTTPException(status_code=404, detail="No visibility control found for this consultation")
 
     visibility.allow_summary = body.allow_summary
+
+    action = "opted_in" if body.allow_summary else "opted_out"
+    consultation = db.query(Consultation).filter(Consultation.id == body.consultation_id).first()
+    db.add(AuditLog(
+        patient_id=consultation.patient_id,
+        practitioner_id=practitioner_id,
+        practitioner_role=practitioner.role,
+        fields_accessed=json.dumps(["Practitioner Consent Settings", action]),
+        timestamp=datetime.now(timezone.utc),
+    ))
     db.commit()
 
     return {
