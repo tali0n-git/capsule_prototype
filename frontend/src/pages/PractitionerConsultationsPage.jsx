@@ -71,6 +71,7 @@ const PractitionerConsultationsPage = ({ patientId, practitioner, practitioners,
         <div className="patient-header">
           <h2>{practitioner.name} (ID: {practitioner.id})</h2>
           <p>Enter consultation notes below. Only filled fields will be saved. Notes appear in the patient summary immediately.</p>
+          <p>* NOTE: For demonstration purposes, we treat entries as 'Full practitioner notes' that are not automatically summarized.</p>
         </div>
       )}
       <div className="summary-view">

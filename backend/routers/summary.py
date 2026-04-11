@@ -59,8 +59,15 @@ def build_raw_summary(patient_id: int, db: Session) -> dict:
 
             always_visible = field.category in ALWAYS_VISIBLE_CATEGORIES
             if allow or always_visible:
+                # Manual notes are raw full notes. When sharing is enabled, show a
+                # placeholder — in a real system this would be an AI-generated summary.
+                value = (
+                    "Summarized practitioner notes would be shown here"
+                    if consultation.is_manual
+                    else field.value
+                )
                 raw[field.category].append({
-                    "value": field.value,
+                    "value": value,
                     "date": consultation.date,
                     "practitioner_name": consultation.practitioner.name,
                     "practitioner_role": consultation.practitioner.role,

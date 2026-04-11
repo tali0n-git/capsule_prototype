@@ -59,21 +59,26 @@ def submit_notes(body: NoteSubmission, db: Session = Depends(get_db)):
         patient_id=body.patient_id,
         practitioner_id=body.practitioner_id,
         date=today,
+        is_manual=True,
     )
     db.add(consultation)
     db.flush()
 
+    categories_written = []
     for entry in body.notes:
         db.add(SummaryField(
             consultation_id=consultation.id,
             category=entry.category,
             value=entry.note,
         ))
+        categories_written.append(entry.category)
 
+    # Manual notes are raw full notes — default to not shared until the practitioner
+    # explicitly enables sharing via the Practitioner Consent Settings toggle.
     db.add(PractitionerVisibilityControl(
         practitioner_id=body.practitioner_id,
         consultation_id=consultation.id,
-        allow_summary=True,
+        allow_summary=False,
     ))
 
     db.add(AuditLog(
@@ -89,5 +94,5 @@ def submit_notes(body: NoteSubmission, db: Session = Depends(get_db)):
     return {
         "consultation_id": consultation.id,
         "categories": categories_written,
-        "message": "Notes saved successfully.",
+        "message": "Notes saved. Sharing is off by default — enable it in Practitioner Consent Settings.",
     }

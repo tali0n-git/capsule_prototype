@@ -37,6 +37,7 @@ class Consultation(Base):
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
     practitioner_id = Column(Integer, ForeignKey("practitioners.id"), nullable=False)
     date = Column(String, nullable=False)
+    is_manual = Column(Boolean, nullable=False, default=False, server_default='0')
 
     patient = relationship("Patient", back_populates="consultations")
     practitioner = relationship("Practitioner", back_populates="consultations")
