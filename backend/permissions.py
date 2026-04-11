@@ -86,9 +86,13 @@ def filter_summary(raw_summary: dict, role: str, opted_out_categories: set) -> d
 
     Check order per field:
       1. no_record — value is None
-      2. patient_restricted — patient consent, except for roles with FULL access
-      3. role access level — HIDDEN skips silently, RESTRICTED returns reason
+      2. role access level — HIDDEN skips silently, RESTRICTED returns reason
+      3. patient_restricted — only reached for FULL access roles
       4. FULL — return the entry list as-is (may include placeholder entries)
+
+    Role access level is checked before patient consent so that a practitioner
+    whose role is already RESTRICTED for a category always sees "role_restricted",
+    even if the patient has also opted out of sharing that category.
     """
     role_defaults = ROLE_DEFAULTS.get(role, {})
     result = {}
@@ -104,18 +108,17 @@ def filter_summary(raw_summary: dict, role: str, opted_out_categories: set) -> d
             result[category] = {"visible": False, "reason": "no_record", "label": label}
             continue
 
-        # 2. Patient restricted — FULL access roles bypass this check
-        if category in opted_out_categories and access_level != AccessLevel.FULL:
-            if access_level == AccessLevel.HIDDEN:
-                continue
-            result[category] = {"visible": False, "reason": "patient_restricted", "label": label}
-            continue
-
-        # 3. Role access level
+        # 2. Role access level — evaluated before patient consent so role restrictions
+        #    are not overridden by patient opt-outs.
         if access_level == AccessLevel.HIDDEN:
             continue
         if access_level == AccessLevel.RESTRICTED:
             result[category] = {"visible": False, "reason": "role_restricted", "label": label}
+            continue
+
+        # 3. Patient restricted — only reached for FULL access roles
+        if category in opted_out_categories:
+            result[category] = {"visible": False, "reason": "patient_restricted", "label": label}
             continue
 
         # 4. FULL — pass entries through; placeholders are rendered by the frontend
