@@ -141,6 +141,8 @@ Each row contains: `patient_id`, `practitioner_id`, `practitioner_role`,
 | `Submitting notes	` | ["Add Practitioners' Notes", "submitted"] |
 | `Patient toggling consent on` | ["Patient Consent Settings", "opted_in"] |
 | `Patient toggling consent off` | ["Patient Consent Settings", "opted_out"] |
+| `Practitioner toggling consent on` | ["Practitioner Consent Settings", "opted_in"] |
+| `Practitioner toggling consent off` | ["Practitioner Consent Settings", "opted_out"] |
 
 
 ---
