@@ -53,7 +53,7 @@ def seed():
             SummaryField(consultation_id=consult_r_gp.id, category="sexual_health",
                          value="History of STIs — last recorded episode 2022. No active infections on record."),
             SummaryField(consultation_id=consult_r_gp.id, category="substance_use",
-                        value="Former smoker, quit in 2010 after 30 pack-years."),
+                        value="Former smoker, quit in 2010 after 30 years, ~5 packs a week."),
         ])
         # GP has chosen not to share their consultation notes in the shared summary (default behaviour)
         db.add(PractitionerVisibilityControl(
