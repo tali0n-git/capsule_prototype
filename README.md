@@ -1,8 +1,7 @@
 # Capsule — Shared Patient Summary
 
 A prototype information architecture and permission system for shared patient
-summaries in multidisciplinary clinics. Built as part of a Product Growth
-application to Heidi.
+summaries in multidisciplinary clinics.
 
 ---
 
@@ -40,13 +39,13 @@ writing is managed through defaults, not restrictions.
 Each discipline gets a sensible default view of patient data based on clinical
 relevance. All practitioners see medications and allergies. A physio also sees musculoskeletal history. A psychologist
 sees mental health and substance use. A dietitian sees nutritional
-conditions. The GP sees everything. Each practitioner recieves clear indicators when data is
+conditions. The GP sees everything. Each practitioner recieves clear indicators when other data is
 unavailable and why.
 
 **2. Visibility controls**
 Patients can opt out of sharing sensitive categories (mental health, substance
 use, sexual health). Practitioners can choose whether their records are
-summarised for colleagues. Both controls are stored in the database and enforced
+summarised for colleagues and patients. Both controls are stored in the database and enforced
 server-side — never just hidden in the UI.
 
 **3. Audit trail**
@@ -121,14 +120,14 @@ would validate a JWT and return the authenticated user.
 
 ## Verifying the Audit Log
 
-Every summary request is logged to the `audit_logs` table. To inspect it, run
+Every summary request by a practitioner is logged to the `audit_logs` table. To inspect it, run
 the following from the `backend/` directory after viewing at least one summary:
 ```bash
 sqlite3 capsule.db "SELECT * FROM audit_logs;"
 ```
 
 Each row contains: `patient_id`, `practitioner_id`, `practitioner_role`,
-`fields_accessed` (JSON list of visible categories), and `timestamp`.
+`fields_accessed`, and `timestamp`.
 
 ---
 
@@ -154,11 +153,14 @@ capsule/
 │   ├── main.py           # FastAPI entry point, registers routers, sets up CORS
 │   ├── models.py         # SQLAlchemy table definitions and Pydantic schemas
 │   ├── database.py       # SQLite engine, session management, get_db dependency
-│   ├── seed.py           # Seeds one realistic patient across all four disciplines
+│   ├── seed.py           # Seeds two realistic patients
 │   ├── permissions.py    # Core permission logic — roles, access levels, filter_summary
 │   └── routers/
 │       ├── summary.py    # Summary endpoint — filters data, writes audit log
-│       └── auth.py       # Simulated auth — accepts role, returns mock session
+│       ├── auth.py       # Simulated auth — accepts role, returns mock session
+│       ├── consent.py    # Patient consent endpoints — GET/PATCH opted-out categories
+│       └── notes.py      # Note submission endpoint — creates consultations and summary fields
+
 └── frontend/
     ├── src/
     │   ├── components/
@@ -166,7 +168,10 @@ capsule/
     │   │   ├── RoleSwitcher.jsx     # Demo dropdown to switch between practitioner roles
     │   │   └── SensitiveField.jsx   # Renders a single field across all visibility states
     │   └── pages/
-    │       └── PatientSummary.jsx   # Page component, holds role state, fetches from API
+    │       ├── PatientSummary.jsx                  # Role-filtered summary view, fetches from API
+    │       ├── PractitionerConsultationsPage.jsx   # Note entry form for the active practitioner
+    │       ├── PractitionerVisibilityPage.jsx      # Toggles per-consultation sharing for each practitioner
+    │       └── PatientConsentPage.jsx              # Toggles patient opt-out for sensitive categories
     ├── package.json
     └── index.html
 ```
@@ -176,9 +181,9 @@ capsule/
 ## Known Limitations
 
 - Auth is simulated — no real JWT validation or user management
-- Single patient seeded — the demo is designed around one patient to illustrate
-  the full range of visibility states across roles
+- Two patients seeded — the demo is designed around two patients: one, to illustrate
+  the full range of visibility states across all roles, the other to show a more sparse summary example
 - SQLite is used for simplicity — a production system would use PostgreSQL with
   row-level security
 - Summary fields are static strings — a production system would generate these
-  dynamically, potentially using an LLM to summarise structured records
+  dynamically using Heidi to summarise structured records
