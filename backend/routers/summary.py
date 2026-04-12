@@ -57,30 +57,28 @@ def build_raw_summary(patient_id: int, db: Session) -> dict:
             if raw[field.category] is None:
                 raw[field.category] = []
 
-            always_visible = field.category in ALWAYS_VISIBLE_CATEGORIES
-            if allow or always_visible:
-                # Manual notes are raw full notes. When sharing is enabled, show a
-                # placeholder — in a real system this would be an AI-generated summary.
-                value = (
-                    "Summarized practitioner notes would be shown here"
-                    if consultation.is_manual
-                    else field.value
-                )
-                raw[field.category].append({
-                    "value": value,
-                    "date": consultation.date,
-                    "practitioner_name": consultation.practitioner.name,
-                    "practitioner_role": consultation.practitioner.role,
-                })
+            entry_base = {
+                "date": consultation.date,
+                "practitioner_name": consultation.practitioner.name,
+                "practitioner_role": consultation.practitioner.role,
+            }
+
+            if consultation.is_manual:
+                # For manually entered notes the toggle meaning is inverted:
+                # OFF (allow=False) = full raw note is visible.
+                # ON  (allow=True)  = placeholder shown in place of a real summary.
+                if allow:
+                    raw[field.category].append({**entry_base, "value": "Summarized practitioner notes would be shown here"})
+                else:
+                    raw[field.category].append({**entry_base, "value": field.value})
             else:
-                # Practitioner has restricted this consultation — include a
-                # placeholder so the viewer knows a note exists but is withheld.
-                raw[field.category].append({
-                    "restricted": True,
-                    "date": consultation.date,
-                    "practitioner_name": consultation.practitioner.name,
-                    "practitioner_role": consultation.practitioner.role,
-                })
+                always_visible = field.category in ALWAYS_VISIBLE_CATEGORIES
+                if allow or always_visible:
+                    raw[field.category].append({**entry_base, "value": field.value})
+                else:
+                    # Practitioner has restricted this consultation — include a
+                    # placeholder so the viewer knows a note exists but is withheld.
+                    raw[field.category].append({**entry_base, "restricted": True})
 
     return raw
 
