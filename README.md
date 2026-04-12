@@ -4,6 +4,31 @@ A prototype information architecture and permission system for shared patient
 summaries in multidisciplinary clinics.
 
 ---
+---
+---
+
+# Post-Submission Changes
+
+Changes made after April 6th submission:
+
+- **Note entry tab** — Added an "Add Practitioners' Notes" tab where practitioners can submit structured notes per category. Only categories their role has full access to are shown. Notes are written to a new `Consultation` and `SummaryField`, and the write is logged to the audit trail.
+
+- **Summary & Add Practitioners' Notes persistence** - The selected practitioner persists between these two tabs such that changing the practitioner view in the Summary tab switches the view to the same practitioner in the Notes tab, and vice-versa.
+
+- **Practitioner consent state persistence** — The selected practitioner in the Practitioner Consent Settings tab now persists when switching between tabs, consistent with how the role selection persists in the Summary/Add Notes tabs.
+
+- **Permission hierarchy fix** — Reordered the checks in `filter_summary` so that `role_restricted` is evaluated before `patient_restricted`. Previously, a patient opting out could override the reason label shown to a role that was already restricted, causing misleading feedback.
+
+- **Summary field ordering** — Unified the category display order across the Summary tab and the Patient Consent Settings tab, with the three sensitive categories (Substance Use, Mental Health, Sexual Health) appearing last in both.
+
+- **Manual note sharing behavior** — Manually entered notes are treated as raw full notes and default to sharing OFF in the Practitioner Consent Settings. Toggling sharing ON replaces the note with a "Summarized practitioner notes would be shown here" placeholder, representing what an AI-generated summary would produce.
+
+- **Audit log improvements** — Audit log entries now record meaningful action labels for all event types: summary views, note submissions, and both patient and practitioner consent changes.
+
+
+---
+---
+---
 
 ## The Problem
 
@@ -57,7 +82,7 @@ available information) and creates accountability without surveillance.
 
 ## Unavailability States
 
-A key design decision: the GP always sees every category, even when data is
+A key design decision: the GP (and subsequentially, the patient) always sees every category, even when data is
 unavailable. Rather than silence, every restricted field returns a reason that
 guides the practitioner's next action:
 
@@ -120,7 +145,7 @@ would validate a JWT and return the authenticated user.
 
 ## Verifying the Audit Log
 
-Every summary request by a practitioner is logged to the `audit_logs` table. To inspect it, run
+Every summary request by a practitioner is logged to the `audit_logs` table. To inspect it, either open the `capsule.db` in your IDE, or run
 the following from the `backend/` directory after viewing at least one summary:
 ```bash
 sqlite3 capsule.db "SELECT * FROM audit_logs;"
@@ -178,6 +203,7 @@ capsule/
 
 ---
 
+
 ## Known Limitations
 
 - Auth is simulated — no real JWT validation or user management
@@ -187,3 +213,14 @@ capsule/
   row-level security
 - Summary fields are static strings — a production system would generate these
   dynamically using Heidi to summarise structured records
+
+
+
+---
+
+## Next Steps
+- Test addition of redacted sensitive patient info; it should be possible for a specific practitioner to have this info in their specialty's summary view (e.g. if a patient gives access to one PHYSIO, every PHYSIO will be able to see this info)
+  - Is this a reasonable permission format/structure to have? SHOULD every practitioner in a specific specialty be able to see one patent's sensitive info?
+
+- Add sliders to Practitioners' Notes, such that every note's 'voice' can be tailored depending on the specific consultation
+  - Make 'Goldilocks' the default
