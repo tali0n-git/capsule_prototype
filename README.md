@@ -3,6 +3,10 @@
 A prototype information architecture and permission system for shared patient
 summaries in multidisciplinary clinics.
 
+# Demonstration:
+[![Demonstration Video](https://img.youtube.com/vi/Bx1byAUCvEk/maxresdefault.jpg)](https://youtu.be/Bx1byAUCvEk)
+
+
 ---
 ---
 ---
