@@ -64,10 +64,14 @@ def build_raw_summary(patient_id: int, db: Session) -> dict:
             }
 
             if consultation.is_manual:
-                # For manually entered notes the toggle meaning is inverted:
+                # Always-visible categories (medications, allergies) bypass the toggle
+                # for manual notes just as they do for seeded ones.
+                if field.category in ALWAYS_VISIBLE_CATEGORIES:
+                    raw[field.category].append({**entry_base, "value": field.value})
+                # For other manually entered notes the toggle meaning is inverted:
                 # OFF (allow=False) = full raw note is visible.
                 # ON  (allow=True)  = placeholder shown in place of a real summary.
-                if allow:
+                elif allow:
                     raw[field.category].append({**entry_base, "value": "Summarized practitioner notes would be shown here"})
                 else:
                     raw[field.category].append({**entry_base, "value": field.value})
