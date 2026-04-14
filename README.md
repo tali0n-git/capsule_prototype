@@ -120,10 +120,11 @@ python seed.py
 uvicorn main:app --reload
 ```
 
-**Frontend** *(requires Node.js to be installed)*
+**Frontend**
+
+Requires Node.js >= 20. If you don't have it, download it from https://nodejs.org.
 ```bash
 cd frontend
-# follow Node.js install instructions (curl... > \. "$HOME...)
 npm install
 npm run dev
 ```
