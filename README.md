@@ -30,6 +30,36 @@ Changes made after April 6th submission:
 ---
 ---
 
+
+## Setup Instructions
+
+**Backend**
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python seed.py
+uvicorn main:app --reload
+```
+
+**Frontend**
+
+Requires Node.js >= 20. If you don't have it, download it from https://nodejs.org.
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Both servers must be running for the application to work:
+- Backend runs at `http://localhost:8000`
+- Frontend runs at `http://localhost:5173`
+- Interactive API docs are available at `http://localhost:8000/docs`
+
+---
+
+
 ## The Problem
 
 In multidisciplinary clinics, patients see GPs, physios, dietitians, and
@@ -105,34 +135,6 @@ guides the practitioner's next action:
 
 - Python 3.11+
 - Node.js >= 20 (https://nodejs.org) — **required for the frontend to run**
-
----
-
-## Setup Instructions
-
-**Backend**
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python seed.py
-uvicorn main:app --reload
-```
-
-**Frontend**
-
-Requires Node.js >= 20. If you don't have it, download it from https://nodejs.org.
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Both servers must be running for the application to work:
-- Backend runs at `http://localhost:8000`
-- Frontend runs at `http://localhost:5173`
-- Interactive API docs are available at `http://localhost:8000/docs`
 
 ---
 
