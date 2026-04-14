@@ -123,6 +123,7 @@ uvicorn main:app --reload
 **Frontend** *(requires Node.js to be installed)*
 ```bash
 cd frontend
+# follow Node.js install instructions (curl... > \. "$HOME...)
 npm install
 npm run dev
 ```
