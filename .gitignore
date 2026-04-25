@@ -1,3 +1,6 @@
+# macOS
+._*
+
 # Python
 backend/venv/
 backend/__pycache__/
@@ -7,3 +10,6 @@ backend/__pycache__/
 # Node
 frontend/node_modules/
 frontend/dist/
+
+# Claude Code
+CLAUDE.md
